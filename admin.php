@@ -20,6 +20,20 @@ class Devb_Conditional_Profile_Admin {
 	 * @var array
 	 */
 	private $fields_info;
+	/**
+     * Plugin path.
+     *
+	 * @var string
+	 */
+    private $path;
+
+	/**
+     *
+     * Plugin url.
+     *
+	 * @var string
+	 */
+    private $url;
 
 	/**
 	 * Operator.
@@ -106,8 +120,6 @@ class Devb_Conditional_Profile_Admin {
 			// sanitize the field value.
 			$value = $_POST['xprofile-condition-other-field-value'];
 
-			// error_log(print_r($value));
-
 			if( is_array( $value )){
 				foreach($value as $val)
 					$val = $this->sanitize_value( $val, $other_field_id );
@@ -116,8 +128,6 @@ class Devb_Conditional_Profile_Admin {
 				$value = $this->sanitize_value( $value, $other_field_id );
 			}
 
-			
-			
 			if ( in_array( $visibility, array( 'show', 'hide' ) ) && $other_field_id && $operator ) {
 				// make sure that all the fields are set
 				// what about empty value?

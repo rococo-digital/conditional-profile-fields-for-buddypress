@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Conditional Profile Fields for BuddyPress
- * Version: 1.2.7
+ * Version: 1.2.8
  * Author: BuddyDev
  * Plugin URI: https://buddydev.com/plugins/conditional-profile-fields-for-buddypress/
  * Author URI: https://buddydev.com
@@ -506,7 +506,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		if ( $data && is_array( $data ) ) {
 			$data = array_map( 'html_entity_decode', $data );
 		} elseif ( $data ) {
-			$data = html_entity_decode( $data );
+			$data = html_entity_decode( $data, ENT_QUOTES|ENT_SUBSTITUTE );
 		}
 
 		return $data;
