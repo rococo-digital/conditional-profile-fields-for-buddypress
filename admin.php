@@ -22,21 +22,6 @@ class Devb_Conditional_Profile_Admin {
 	private $fields_info;
 
 	/**
-     * Plugin path.
-     *
-	 * @var string
-	 */
-    private $path;
-
-	/**
-     *
-     * Plugin url.
-     *
-	 * @var string
-	 */
-    private $url;
-
-	/**
 	 * Operator.
 	 *
 	 * @var array
@@ -121,8 +106,18 @@ class Devb_Conditional_Profile_Admin {
 			// sanitize the field value.
 			$value = $_POST['xprofile-condition-other-field-value'];
 
-			$value = $this->sanitize_value( $value, $other_field_id );
+			// error_log(print_r($value));
 
+			if( is_array( $value )){
+				foreach($value as $val)
+					$val = $this->sanitize_value( $val, $other_field_id );
+			}
+			else{
+				$value = $this->sanitize_value( $value, $other_field_id );
+			}
+
+			
+			
 			if ( in_array( $visibility, array( 'show', 'hide' ) ) && $other_field_id && $operator ) {
 				// make sure that all the fields are set
 				// what about empty value?
@@ -139,13 +134,23 @@ class Devb_Conditional_Profile_Admin {
 						'membertypes'
 					) ) ) {
 					// this is a multi option field, we should store the value.
-
+					
                     foreach ( $children as $child ) {
                         if( $value == $child->id ) {
 	                        bp_xprofile_update_field_meta( $field->id, 'xprofile_condition_other_field_option_name',  $child->name );
                             break;
                         }
                     }
+				}
+				elseif( is_array( $value )){
+					// error_log(print_r($value));
+					$child_names = [];
+					foreach ( $children as $child ) {
+						if( $value == $child->id ) {
+							$child_names[] = $child->name;
+						}
+					}
+					bp_xprofile_update_field_meta( $field->id, 'xprofile_condition_other_field_option_name',  $child_names );
 				}
 			}
 		}
@@ -268,7 +273,7 @@ class Devb_Conditional_Profile_Admin {
 	 */
 	public function get_other_field_displayable_value( $field_id ) {
 		$option_value = bp_xprofile_get_meta( $field_id, 'field', 'xprofile_condition_other_field_option_name' );
-
+		
         if ( $option_value ) {
 			return $option_value;
 		}
@@ -327,16 +332,25 @@ class Devb_Conditional_Profile_Admin {
 					$options = '';
 					if ( $other_field_id ) {
 						$other_field = new BP_XProfile_Field( $other_field_id );
-						$children    = $other_field->get_children();
-                        $children = apply_filters( 'cpffb_admin_field_options', $children, $other_field );
 
+						$children    = $other_field->get_children();
+						
+                        $children = apply_filters( 'cpffb_admin_field_options', $children, $other_field );
+						
 						if ( $children ) {
+							
 							$children = bpc_profile_field_sanitize_child_options( $children );
+							
 							//multi field
-							foreach ( $children as $child_field ) {
-								$options .= "<label><input type='radio' value='{$child_field->id}'" . checked( $other_field_value, $child_field->id, false ) . " name='xprofile-condition-other-field-value' />{$child_field->name}</label>";
+							$options .= "<select name='xprofile-condition-other-field-value[]' multiple>";
+							foreach ( $children as $key=>$child_field ) {
+
+								$options .= "<option  value='{$child_field->name}' " . selected(in_array($child_field->name, $other_field_value), true)  . ">{$child_field->name}</option>";
 							}
+							$options .= "</select>";
+							
 						} else {
+							
 							$options = "<input type='text' name='xprofile-condition-other-field-value' id='xprofile-condition-other-field-value' class='xprofile-condition-other-field-value-single' value ='{$other_field_value}'; />";
 						}
 					} else {
@@ -344,7 +358,9 @@ class Devb_Conditional_Profile_Admin {
 					}
 
 					?>
-					<?php echo $options; ?>
+					
+					<?php echo $options; 
+					?>
 
                 </div>
 
@@ -495,6 +511,7 @@ class Devb_Conditional_Profile_Admin {
 		}
 		$operator  = $this->get_operator( $field->id );
 		$value     = $this->get_other_field_displayable_value( $field->id );
+		$value =  json_encode($value);
 		$condition = "[ {$visibility} if {{$other_field}}  {$operator} {$value} ]";
 		echo '<span class="cpffbp-field-list">&nbsp;&nbsp;' . $condition . '</span>';
 	}
