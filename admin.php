@@ -354,8 +354,14 @@ class Devb_Conditional_Profile_Admin {
 							//multi field
 							$options .= "<select name='xprofile-condition-other-field-value[]' multiple>";
 							foreach ( $children as $key=>$child_field ) {
+								echo print_r($other_field_value);
+								if(is_array($other_field_value)){
+									$options .= "<option  value='{$child_field->name}' " . selected(in_array($child_field->name, $other_field_value), true)  . ">{$child_field->name}</option>";
+								}
+								else{
+									$options .= "<option  value='{$child_field->name}' " . selected($child_field->name, $other_field_value, true)  . ">{$child_field->name}</option>";
 
-								$options .= "<option  value='{$child_field->name}' " . selected(in_array($child_field->name, $other_field_value), true)  . ">{$child_field->name}</option>";
+								}
 							}
 							$options .= "</select>";
 							
