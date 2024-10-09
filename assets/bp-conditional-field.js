@@ -257,6 +257,12 @@ jQuery( document ).ready( function ( $ ) {
 		// so we can understand the behaviour of this field.
 		var $el = $( '.field_' + field_id );
 
+		var inputElement = document.getElementById('field_' + field_id);
+
+		if(inputElement.required){
+			inputElement.dataset.conditionally_required = true;
+		}
+
 		if ( ! $el.get( 0 ) ) {
 			console.log( 'Conditional Profile Fields: There seems to be some html issue and I am not able to fix it, Please tell that to the developer: field_id:' + field_id );
 			return;
@@ -273,8 +279,15 @@ jQuery( document ).ready( function ( $ ) {
 
 		if ( visibility === 'show' ) {
 			$el.show();
+			if(inputElement.dataset.conditionally_required){
+				inputElement.required = true;
+			}
 		} else {
 			$el.hide();
+			if(inputElement.required){
+				inputElement.required = false
+			}
+			
 		}
 	}
 
